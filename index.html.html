@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🐥 小雞顏文字產生器 buibui~</title>
+  <style>
+    :root {
+      --bg-color: #FFFDF0;
+      --card-bg: #FFFFFF;
+      --primary: #FFD54F;
+      --primary-hover: #FFCA28;
+      --accent: #FF8A65;
+      --text-main: #4E342E;
+      --border: #FFE082;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      display: flex;
+      justify-content: center;
+      padding: 20px;
+      margin: 0;
+    }
+    .container {
+      max-width: 520px;
+      width: 100%;
+      background: var(--card-bg);
+      border-radius: 24px;
+      padding: 24px;
+      box-shadow: 0 8px 24px rgba(255, 213, 79, 0.25);
+      border: 3px solid var(--border);
+    }
+    h1 {
+      text-align: center;
+      font-size: 1.5rem;
+      margin-top: 0;
+      margin-bottom: 20px;
+    }
+    .preview-box {
+      background: #FFF9C4;
+      border: 2px dashed #FBC02D;
+      border-radius: 16px;
+      padding: 24px 16px;
+      text-align: center;
+      margin-bottom: 20px;
+      position: relative;
+    }
+    #result {
+      font-size: 1.8rem;
+      font-weight: bold;
+      letter-spacing: 1px;
+      word-break: break-all;
+      min-height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .action-buttons {
+      display: flex;
+      gap: 10px;
+      margin-top: 16px;
+    }
+    button {
+      flex: 1;
+      padding: 12px;
+      border: none;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: transform 0.1s, background-color 0.2s;
+      color: var(--text-main);
+    }
+    button:active {
+      transform: scale(0.96);
+    }
+    .btn-copy {
+      background-color: var(--primary);
+    }
+    .btn-copy:hover {
+      background-color: var(--primary-hover);
+    }
+    .btn-random {
+      background-color: #FFCCBC;
+    }
+    .btn-random:hover {
+      background-color: #FFAB91;
+    }
+    .group {
+      margin-bottom: 16px;
+    }
+    .group-title {
+      font-size: 0.9rem;
+      font-weight: bold;
+      margin-bottom: 8px;
+      color: #8D6E63;
+    }
+    .options {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .opt-btn {
+      background: #FFF8E1;
+      border: 1.5px solid var(--border);
+      padding: 6px 12px;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      cursor: pointer;
+      flex: none;
+    }
+    .opt-btn.active {
+      background: var(--primary);
+      border-color: #FBC02D;
+      box-shadow: 0 2px 6px rgba(251, 192, 45, 0.3);
+    }
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #4E342E;
+      color: #FFF;
+      padding: 10px 20px;
+      border-radius: 20px;
+      font-size: 0.9rem;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+    }
+    .toast.show {
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h1>🐣 小雞顏文字產生器</h1>
+
+  <div class="preview-box">
+    <div id="result">⁽⁽٩( •᷄ɞ•᷅ )۶⁾⁾ buibui</div>
+    <div class="action-buttons">
+      <button class="btn-copy" onclick="copyText()">📋 一鍵複製</button>
+      <button class="btn-random" onclick="randomize()">🎲 隨機抽一隻</button>
+    </div>
+  </div>
+
+  <div class="group">
+    <div class="group-title">1. 動作 / 翅膀</div>
+    <div class="options" id="opt-arms"></div>
+  </div>
+
+  <div class="group">
+    <div class="group-title">2. 眼睛表情</div>
+    <div class="options" id="opt-eyes"></div>
+  </div>
+
+  <div class="group">
+    <div class="group-title">3. 嘴巴</div>
+    <div class="options" id="opt-mouth"></div>
+  </div>
+
+  <div class="group">
+    <div class="group-title">4. 裝飾與特效</div>
+    <div class="options" id="opt-deco"></div>
+  </div>
+
+  <div class="group">
+    <div class="group-title">5. 專屬音效 / 尾音</div>
+    <div class="options" id="opt-sound"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast">已複製小雞！ε=ε=٩( •᷄ɞ•᷅ )۶</div>
+
+<script>
+  const data = {
+    arms: [
+      { label: '手舞足蹈', left: '⁽⁽٩( ', right: ' )۶⁾⁾' },
+      { label: '狂奔衝刺', left: 'ε=ε=٩( ', right: ' )۶' },
+      { label: '舉高歡呼', left: '＼( ', right: ' )／' },
+      { label: '開心拍翅', left: 'ヾ( ', right: ' )ﾉﾞ' },
+      { label: '激動扭動', left: '₍₍ (̨̡ ', right: ' )̧̢ ₎₎' },
+      { label: '討抱抱', left: '⊂( ', right: ' )⊃' },
+      { label: '氣到發抖', left: '((((( ', right: ' )))))' },
+      { label: '乖巧站好', left: '( ', right: ' )' }
+    ],
+    eyes: [
+      { label: '八字呆萌', left: '•᷄', right: '•᷅' },
+      { label: '閉眼狂喜', left: '>', right: '<' },
+      { label: '大笑瞇眼', left: '≧', right: '≦' },
+      { label: '震驚圓眼', left: '°', right: '°' },
+      { label: '委屈泛淚', left: '´•̥̥̥ ', right: ' •̥̥̥`' },
+      { label: '香甜睡著', left: '˘', right: '˘' },
+      { label: '生氣皺眉', left: '◦`', right: '´◦' }
+    ],
+    mouth: [
+      { label: '經典小嘴', val: 'ɞ' },
+      { label: '圓嘟嘟嘴', val: 'ө' },
+      { label: '大叫張嘴', val: 'Д' },
+      { label: '嘟嘴親親', val: '3' }
+    ],
+    deco: [
+      { label: '無', left: '', right: '' },
+      { label: '噴發愛心', left: '', right: '♡' },
+      { label: '閃亮亮', left: '✧*｡', right: '✧*｡' },
+      { label: '驚嘆號', left: 'Σ', right: '!!' },
+      { label: '氣噗噗', left: '╬ ', right: '' },
+      { label: '冒煙加速', left: '', right: '⁼³₌₃' }
+    ],
+    sound: [
+      { label: 'buibui', val: ' buibui' },
+      { label: 'bui♪ bui♪', val: ' bui♪ bui♪' },
+      { label: '嗶嗶！', val: ' 嗶嗶！' },
+      { label: 'zzz', val: ' zzz' },
+      { label: '無', val: '' }
+    ]
+  };
+
+  let state = {
+    arms: 0,
+    eyes: 0,
+    mouth: 0,
+    deco: 0,
+    sound: 0
+  };
+
+  function renderOptions() {
+    for (const [key, list] of Object.entries(data)) {
+      const container = document.getElementById(`opt-${key}`);
+      container.innerHTML = '';
+      list.forEach((item, index) => {
+        const btn = document.createElement('button');
+        btn.className = `opt-btn ${state[key] === index ? 'active' : ''}`;
+        btn.textContent = item.label;
+        btn.onclick = () => {
+          state[key] = index;
+          renderOptions();
+          updateResult();
+        };
+        container.appendChild(btn);
+      });
+    }
+  }
+
+  function updateResult() {
+    const arm = data.arms[state.arms];
+    const eye = data.eyes[state.eyes];
+    const mouth = data.mouth[state.mouth];
+    const deco = data.deco[state.deco];
+    const sound = data.sound[state.sound];
+
+    const face = `${eye.left}${mouth.val}${eye.right}`;
+    const full = `${deco.left}${arm.left}${face}${arm.right}${deco.right}${sound.val}`;
+    document.getElementById('result').textContent = full;
+  }
+
+  function copyText() {
+    const text = document.getElementById('result').textContent;
+    navigator.clipboard.writeText(text).then(() => {
+      const toast = document.getElementById('toast');
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2000);
+    });
+  }
+
+  function randomize() {
+    for (const key of Object.keys(data)) {
+      state[key] = Math.floor(Math.random() * data[key].length);
+    }
+    renderOptions();
+    updateResult();
+  }
+
+  renderOptions();
+  updateResult();
+</script>
+
+</body>
+</html>
